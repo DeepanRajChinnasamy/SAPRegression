@@ -5,7 +5,7 @@ Library     ../TestSuites/Sapautomation.py
 Library     ../Resource/ObjectRepositories/Response.py
 
 *** Variables ***
-${InputExcel}    C:\\Users\\dchinnasam\\OneDrive\\Documents\\SAP Test Automation\\SAP-Test-Automation\\TestSuites\\UploadExcel\\SAPRegression\\ts_KBE_51_001.xlsx
+${InputExcel}    C:\\Users\\dchinnasam\\OneDrive\\Documents\\SAP_Regression\\SAPRegression\\TestSuites\\UploadExcel\\ts_KBE_51_001.xlsx
 ${SAPGUIPATH}    C:/Program Files (x86)/SAP/FrontEnd/SAPgui/saplogon.exe
 ${CONNECTION}    EQ2-Load balancer
 ${SAP_CLIENT}      100
@@ -19,7 +19,7 @@ ${SaveButton}    /app/con[0]/ses[0]/wnd[0]/tbar[0]/btn[11]
 ${StatusbarText}    /app/con[0]/ses[0]/wnd[0]/sbar/pane[0]
 
 *** Test Cases ***
-Connect to SAP system
+KBE_51_001
    [Tags]    id=KBE_51_001
     Connect To SAP
     Read All Input Values From Excel    ${InputExcel}    Data
