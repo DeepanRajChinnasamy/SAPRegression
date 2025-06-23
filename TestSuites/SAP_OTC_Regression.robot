@@ -5,7 +5,7 @@ Library     ../TestSuites/Sapautomation.py
 Library     ../Resource/ObjectRepositories/Response.py
 
 *** Variables ***
-${InputExcel}    C:\\Users\\dchinnasam\\OneDrive\\Documents\\SAP_Regression\\SAPRegression\\TestSuites\\UploadExcel\\ts_KBE_51_001.xlsx
+${InputExcel}    ${execdir}\\UploadExcel\\SAP_OTC_Regression.xlsx
 ${SAPGUIPATH}    C:/Program Files (x86)/SAP/FrontEnd/SAPgui/saplogon.exe
 ${CONNECTION}    EQ2-Load balancer
 ${SAP_CLIENT}      100
