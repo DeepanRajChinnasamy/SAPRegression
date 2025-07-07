@@ -1,4 +1,6 @@
 
+
+import time
 import win32com.client
 
 class Sapautomation:
@@ -38,3 +40,19 @@ class Sapautomation:
         session = connection.Children(0)
         session.findById(elementid).key = " "
         session.findById(elementid).setFocus()
+
+    def select_dropdown(self, elementid, value):
+        SapGuiAuto = win32com.client.GetObject("SAPGUI")
+        application = SapGuiAuto.GetScriptingEngine
+        connection = application.Children(0)
+        session = connection.Children(0)
+        session.findById(elementid).key = value
+        session.findById(elementid).setFocus()
+
+    def popup_btn(self, button_id):
+        SapGuiAuto = win32com.client.GetObject("SAPGUI")
+        application = SapGuiAuto.GetScriptingEngine
+        connection = application.Children(0)
+        session = connection.Children(0)
+        popup_button = session.findById(button_id)
+        popup_button.press()
