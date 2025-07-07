@@ -1,0 +1,6 @@
+name: "{{name}}"
+age: "{{age}}"
+email: "{{email}}"
+address:
+  city: "{{city}}"
+  zip: "{{zip}}"
