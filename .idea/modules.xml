@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../SAP Test Automation/.idea/SAP Test Automation.iml" filepath="$PROJECT_DIR$/../SAP Test Automation/.idea/SAP Test Automation.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/VIAX.iml" filepath="$PROJECT_DIR$/.idea/VIAX.iml" />
     </modules>
   </component>
