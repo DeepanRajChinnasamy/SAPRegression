@@ -132,6 +132,7 @@ KBE_51_001
     END
     save excel document    ${InputExcel}
     close all excel documents
+    close sap connection
 KBE_51_002
     [Tags]    id=KBE_51_002
     Connect To SAP
