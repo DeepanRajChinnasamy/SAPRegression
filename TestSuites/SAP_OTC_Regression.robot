@@ -44,6 +44,7 @@ ${MaterialTableId}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_OVERVIEW/t
 ${TargetQtyId}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_OVERVIEW/tabpT\\02/ssubSUBSCREEN_BODY:SAPMV45A:4427/subSUBSCREEN_TC:SAPMV45A:4908/tblSAPMV45ATCTRL_U_ERF_KONTRAKT/txtVBAP-ZMENG[2,0]
 ${headerButton}    /app/con[0]/ses[0]/wnd[0]/usr/subSUBSCREEN_HEADER:SAPMV45A:4021/btnBT_HEAD
 ${salesHeaderTab}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_HEAD/tabpT\\01
+${PartnersHeaderTab}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_HEAD/tabpT\\08
 ${orderHeaderTab}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_HEAD/tabpT\\11
 ${sellingGrpTextbox}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_HEAD/tabpT\\01/ssubSUBSCREEN_BODY:SAPMV45A:4301/ctxtVBAK-VKBUR
 ${PurchaseGrpTextbox}    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_HEAD/tabpT\\11/ssubSUBSCREEN_BODY:SAPMV45A:4351/ctxtVBKD-BSARK
@@ -61,7 +62,7 @@ ${PopupCancelButton}    /app/con[0]/ses[0]/wnd[1]/usr/btnCANCEL
 ${PopupEditButton}    /app/con[0]/ses[0]/wnd[1]/usr/btnSPOP-VAROPTION2
 
 *** Test Cases ***
-KBE_51_001
+ts_KBE_51_001_CreateAnOrderInWOLBookstoreForAnEMRWAndInterfacetoSAP
    [Tags]    id=KBE_51_001
     Connect To SAP
     Read All Input Values From Excel    ${InputExcel}    Data
@@ -133,7 +134,7 @@ KBE_51_001
     save excel document    ${InputExcel}
     close all excel documents
     close sap connection
-KBE_51_002
+ts_KBE_52_003_BP_CreateBusinessPartner
     [Tags]    id=KBE_51_002
     Connect To SAP
     run transaction    /nBP
@@ -242,6 +243,55 @@ KBE_51_002
         END
     END
     close sap connection
+ts_KBE_68_002_SocietiesAndMembershipOrdering
+    [Tags]     id=KBE_51_003
+    Connect To SAP
+    Read All Input Values From Excel    ${InputExcel}    Data
+    ${ListIndexIterator}    set variable    0
+    ${DataIndexIterator}    set variable    0
+    ${IdocIDCount}=    get length    ${IdocNumberList}
+    ${RowCounter}    set variable    2
+    Enter Details in VA41 Entry Screen
+    sapguilibrary.input text    ${ShipToBP}    1009602660
+    sapguilibrary.input text    ${SoldToBP}    1009602660
+    sapguilibrary.click element    ${ENTERBUTTON}
+    ${statusText}=    sapguilibrary.get value    ${statusbarTextID}
+    IF    '${statusText}' == '${EMPTY}'
+        click sap popup button if present    ${SAPPopUpElement}
+        sapguilibrary.click element    ${ItemOveriewTab}
+        sapguilibrary.input text    ${MaterialTableId}    FIREP
+        ${MaterialErrorText}=    sapguilibrary.get value    ${statusbarTextID}
+        IF    '${MaterialErrorText}' == '${EMPTY}'
+            sapguilibrary.input text    ${TargetQtyId}    1
+            send vkey    0
+            click sap popup button if present    ${SAPPopUpElement}
+            #sleep    5s
+            sapguilibrary.click element    ${headerButton}
+            #sleep    3s
+            sapguilibrary.click element    ${salesHeaderTab}
+            sapguilibrary.input text    ${sellingGrpTextbox}    0050
+            sapguilibrary.click element    ${orderHeaderTab}
+            sapguilibrary.input text    ${PurchaseGrpTextbox}    0020
+            send vkey    11
+            #${element_exists}  set variable
+            click sap popup button if present    ${SAPPopUpElement}
+            click sap popup button if present    ${SAPPopUpElement}
+            click sap popup button if present   ${PopupEditButton}
+            ${OrderIssue}    sapguilibrary.get value    ${statusbarTextID}
+            ${Order}=    sapguilibrary.get value    ${statusbarTextID}
+            sleep    3s
+            ${OrderNumList}    split string    ${Order}    ${SPACE}
+            log to console    ${OrderNumList}[2]
+            ${OrderNumber}    set variable    ${OrderNumList}[2]
+            Release Credit Flag    ${OrderNumber}
+            Create Billing Document
+            Navigate to Document flow    ${OrderNumber}
+            Verify Partner Label in Order    ${OrderNumber}
+        END
+    END
+    close sap connection
+    close all excel documents
+
 
 
 *** Keywords ***
@@ -271,3 +321,45 @@ Read All Input Values From Excel
     ${IdocNumberList}=    get from dictionary    ${ExcelDictionary}    IdocNumber
     set suite variable    ${IdocNumberList}    ${IdocNumberList}
     open excel document    ${InputExcel}    docID
+
+Release Credit Flag
+    [Arguments]    ${SubOrderNumber}
+    run transaction    /nVKM3
+    sapguilibrary.input text    /app/con[0]/ses[0]/wnd[0]/usr/ctxtVBELN-LOW    ${SubOrderNumber}
+    send vkey    F8
+    sapguilibrary.select checkbox    /app/con[0]/ses[0]/wnd[0]/usr/chk[1,3]
+    sapguilibrary.click element    /app/con[0]/ses[0]/wnd[0]/tbar[1]/btn[34]
+    sapguilibrary.click element    ${SaveButton}
+
+Create Billing Document
+    run transaction    /nVF01
+    sapguilibrary.click element    ${ENTERBUTTON}
+    sapguilibrary.click element    ${SaveButton}
+    ${statustext}=    sapguilibrary.get value    /app/con[0]/ses[0]/wnd[0]/sbar
+    @{statustext}=    split string    ${statustext}    ${SPACE}
+    ${DocumentNumber}=    get from list    ${statustext}    1
+    should contain    ${statustext}    saved
+
+Navigate to Document flow
+    [Arguments]    ${SubOrderNumber}
+    run transaction    /nVa43
+    sapguilibrary.input text    /app/con[0]/ses[0]/wnd[0]/usr/ctxtVBAK-VBELN    ${SubOrderNumber}
+    sapguilibrary.click element    /app/con[0]/ses[0]/wnd[0]/tbar[1]/btn[17]
+
+Enter Details in VA41 Entry Screen
+    run transaction    /nVA41
+    sapguilibrary.input text    ${orderTypeElementID}  ZSUB
+    sapguilibrary.input text    ${sellingOrdElementID}    1001
+    sapguilibrary.input text    ${distributionChannelElementID}    00
+    sapguilibrary.input text    ${divisonElemID}    00
+    sapguilibrary.click element    ${ENTERBUTTON}
+
+Verify Partner Label in Order
+    [Arguments]    ${OrderNumber}
+    run transaction    /NVA43
+    sapguilibrary.input text    /app/con[0]/ses[0]/wnd[0]/usr/ctxtVBAK-VBELN    ${OrderNumber}
+    sapguilibrary.click element    ${ENTERBUTTON}
+    sapguilibrary.click element    ${headerButton}
+    sapguilibrary.click element    ${PartnersHeaderTab}
+    ${PartnerTerm}=    sapguilibrary.get value    /app/con[0]/ses[0]/wnd[0]/usr/tabsTAXI_TABSTRIP_HEAD/tabpT\\08/ssubSUBSCREEN_BODY:SAPMV45A:4352/subSUBSCREEN_PARTNER_OVERVIEW:SAPLV09C:1000/tblSAPLV09CGV_TC_PARTNER_OVERVIEW/cmbGVS_TC_DATA-REC-PARVW[0,4]
+    should contain    ${PartnerTerm}    ZA Society Partner
